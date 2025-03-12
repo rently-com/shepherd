@@ -192,6 +192,10 @@ export interface StepOptions {
    */
   title?: StringOrStringFunction;
 
+  titleIcon?: StringOrStringFunction;
+
+  footerText?: StringOrStringFunction;
+
   /**
    * You can define `show`, `hide`, etc events inside `when`. For example:
    * ```js
@@ -237,6 +241,7 @@ export interface StepOptionsAttachTo {
     | null
     | (() => HTMLElement | string | null | undefined);
   on?: PopperPlacement;
+  styles?: string;
 }
 
 export interface StepOptionsAdvanceOn {
@@ -610,11 +615,11 @@ export class Step extends Evented {
    * sets up a FloatingUI instance for the tooltip, then triggers `show`.
    * @private
    */
-  _show() {
+  async _show() {
     this.trigger('before-show');
 
     // Force resolve to make sure the options are updated on subsequent shows.
-    this._resolveAttachToOptions();
+    await this._resolveAttachToOptions();
     this._resolveExtraHiglightElements();
     this._setupElements();
 
