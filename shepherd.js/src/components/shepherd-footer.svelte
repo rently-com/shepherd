@@ -1,6 +1,6 @@
 <script>
-  import { isFunction } from 'src/utils/type-check';
   import ShepherdButton from './shepherd-button.svelte';
+  import { isFunction } from '../utils/type-check';
 
   export let step, footerText;
 
