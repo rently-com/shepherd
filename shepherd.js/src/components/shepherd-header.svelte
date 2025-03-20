@@ -8,7 +8,7 @@
   $: {
     title = step.options.title;
     cancelIcon = step.options.cancelIcon;
-    titleIcon = step.options.headerIcon;
+    titleIcon = step.options.titleIcon;
   }
 </script>
 
@@ -28,13 +28,10 @@
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     display: flex;
-    justify-content: flex-end;
     line-height: 2em;
-    padding: 0.75rem 0.75rem 0;
   }
 
   .shepherd-has-title .shepherd-content .shepherd-header {
-    background: #e6e6e6;
-    padding: 1em;
+    background: #FFFFFF;
   }
 </style>

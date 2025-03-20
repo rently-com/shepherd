@@ -1,19 +1,25 @@
 <script>
-  import { afterUpdate } from 'svelte';
+    import { afterUpdate } from 'svelte';
   import { isFunction } from '../utils/type-check.ts';
 
-  export let labelId, title, titleIcon;
+  export let labelId, title, titleIcon, element;
 
-  // Reactive assignment to handle function-based title and titleIcon
+  // Reactive assiDSgnment to handle function-based title and titleIcon
   $: resolvedTitle = isFunction(title) ? title() : title;
-  $: resolvedTitleIcon = isFunction(titleIcon) ? titleIcon() : titleIcon;
+  $: resolvedTitleIcon = titleIcon;
+  afterUpdate(() => {
+    if(isFunction(titleIcon)) {
+      resolvedTitleIcon = titleIcon();
+    }
+    element.innerHTML = resolvedTitleIcon;
+  });
 </script>
 
 <!-- svelte-ignore a11y-missing-content -->
 <div id={labelId} class="shepherd-title">
   <div class="shepherd-title-container">
     {#if resolvedTitleIcon}
-      <img class="shepherd-title-icon" src={resolvedTitleIcon} alt="" />
+    <div bind:this={element} class="shepherd-title-icon"></div>
     {/if}
     <div class="shepherd-title-text">{resolvedTitle}</div>
   </div>
@@ -24,8 +30,9 @@
     color: #111827;
     font-size: 1rem;
     font-weight: 600;
-    line-height: 24px;
+    line-height: 1.5rem;
     letter-spacing: 0px;
+    font-family: Inter;
   }
   .shepherd-title-icon {
     display: block;
@@ -36,5 +43,6 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    justify-content: center;
   }
 </style>

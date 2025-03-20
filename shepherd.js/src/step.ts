@@ -196,6 +196,11 @@ export interface StepOptions {
 
   footerText?: StringOrStringFunction;
 
+  useModalOverlay?: boolean;
+  
+  pageUrl?: string;
+
+  static?: boolean;
   /**
    * You can define `show`, `hide`, etc events inside `when`. For example:
    * ```js
@@ -241,7 +246,7 @@ export interface StepOptionsAttachTo {
     | null
     | (() => HTMLElement | string | null | undefined);
   on?: PopperPlacement;
-  styles?: string;
+  wait?: number;
 }
 
 export interface StepOptionsAdvanceOn {
@@ -443,6 +448,35 @@ export class Step extends Evented {
     return Boolean(this.el && !this.el.hidden);
   }
 
+  _waitForElement(timeout = 5000) {
+    return new Promise((resolve, reject) => {
+      const intervalTime = 100;
+      const endTime = Date.now() + timeout;
+      const attachTo = this.options.attachTo;
+  
+      const checkElement = () => {
+        let element;
+
+        if (isFunction(attachTo?.element)) {
+          element = attachTo.element.call(this);
+          if(element) {
+            resolve(element);
+          }
+        }
+        element = document.querySelector(attachTo?.element as string);
+        if (element) {
+          resolve(element);
+        } else if (Date.now() > endTime) {
+          reject(new Error(`Element ${attachTo?.element} not found within ${timeout}ms`));
+        } else {
+          setTimeout(checkElement, intervalTime);
+        }
+      };
+  
+      checkElement();
+    });
+  }
+
   /**
    * Wraps `_show` and ensures `beforeShowPromise` resolves before calling show
    */
@@ -451,6 +485,11 @@ export class Step extends Evented {
       return Promise.resolve(this.options.beforeShowPromise()).then(() =>
         this._show()
       );
+    }
+    if(this.options.attachTo?.wait) {
+      return this._waitForElement(this.options.attachTo.wait).then(() => {
+        return this._show();
+      });
     }
     return Promise.resolve(this._show());
   }

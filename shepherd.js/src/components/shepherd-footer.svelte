@@ -2,15 +2,15 @@
   import { isFunction } from 'src/utils/type-check';
   import ShepherdButton from './shepherd-button.svelte';
 
-  export let step, element, footerText;
+  export let step, footerText;
 
   $: buttons = step.options.buttons;
-  $: footerText = isFunction(step.options.footerText) ? step.options.footerText() : step.options.footerText;
+  $: footerText = isFunction(footerText) ? step.options.footerText() : step.options.footerText;
 </script>
 
 <footer class="shepherd-footer">
   {#if footerText}
-    <span>{footerText}</span>
+    <span class="shepherd-footer-text">{footerText}</span>
   {/if}
   {#if buttons}
     {#each buttons as config}
@@ -24,19 +24,19 @@
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
     display: flex;
-    justify-content: flex-end;
-    padding: 0 0.75rem 0.75rem;
-  }
+    justify-content: space-between;
+    }
 
   .shepherd-footer .shepherd-button:last-child {
     margin-right: 0;
+    align-self: flex-end;
   }
 
-  .sheperd-footer-text {
+  .shepherd-footer-text {
     font-family: Inter;
-    font-size: 12px;
+    font-size: 0.75rem;
     line-height: 20px;
-    letter-spacing: 8px;
+    letter-spacing: 0px;
     font-weight: 400;
     color: #4B5563;
   }
