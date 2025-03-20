@@ -323,6 +323,7 @@ export class Step extends Evented {
   declare options: StepOptions;
   target?: HTMLElement | null;
   tour: Tour;
+  observer?: MutationObserver;
 
   constructor(tour: Tour, options: StepOptions = {}) {
     super();
@@ -373,6 +374,8 @@ export class Step extends Evented {
    */
   destroy() {
     destroyTooltip(this);
+
+    this.observer?.disconnect();
 
     if (isHTMLElement(this.el)) {
       this.el.remove();
@@ -699,6 +702,17 @@ export class Step extends Evented {
       el.classList.add(`${this.classPrefix}shepherd-enabled`);
       el.classList.add(`${this.classPrefix}shepherd-target`);
     });
+    this.observer = new MutationObserver(() => {
+      if (!document.body.contains(target)) {
+        console.log("Element no longer in DOM, canceling tour");
+        this.tour.cancel();
+      }
+    });
+
+    this.observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
 
     this.trigger('show');
   }
@@ -745,6 +759,7 @@ export class Step extends Evented {
   _updateStepTargetOnHide() {
     const target = this.target || document.body;
     const extraHighlightElements = this._resolvedExtraHighlightElements;
+    this.observer?.disconnect();
 
     const highlightClass = this.options.highlightClass;
     if (highlightClass) {
