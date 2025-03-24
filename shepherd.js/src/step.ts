@@ -192,15 +192,36 @@ export interface StepOptions {
    */
   title?: StringOrStringFunction;
 
+  /**
+   * The titleIcon will be added ot the header
+   * ```
+   * - HTML string
+   * - `Function` to be executed when the step is built. It must return HTML string.
+   * ```
+   */
   titleIcon?: StringOrStringFunction;
 
+  /**
+   * The step's footer. It becomes a span in the footer's beginning.
+   * ```
+   * - HTML string
+   * - `Function` to be executed when the step is built. It must return HTML string.
+   * ```
+   */
   footerText?: StringOrStringFunction;
 
-  useModalOverlay?: boolean;
-  
+  /**
+   * Doesnt have any impact on the step
+   */
   pageUrl?: string;
 
+  /**
+   * Doesnt have any impact on the step
+   */
   static?: boolean;
+  
+  name?: string;
+
   /**
    * You can define `show`, `hide`, etc events inside `when`. For example:
    * ```js
@@ -246,6 +267,9 @@ export interface StepOptionsAttachTo {
     | null
     | (() => HTMLElement | string | null | undefined);
   on?: PopperPlacement;
+  /*
+   * The amount of waited for the element to appear in ms
+   */
   wait?: number;
 }
 
@@ -375,8 +399,6 @@ export class Step extends Evented {
   destroy() {
     destroyTooltip(this);
 
-    this.observer?.disconnect();
-
     if (isHTMLElement(this.el)) {
       this.el.remove();
       this.el = null;
@@ -456,13 +478,13 @@ export class Step extends Evented {
       const intervalTime = 100;
       const endTime = Date.now() + timeout;
       const attachTo = this.options.attachTo;
-  
+
       const checkElement = () => {
         let element;
 
         if (isFunction(attachTo?.element)) {
           element = attachTo.element.call(this);
-          if(element) {
+          if (element) {
             resolve(element);
           }
         }
@@ -470,12 +492,16 @@ export class Step extends Evented {
         if (element) {
           resolve(element);
         } else if (Date.now() > endTime) {
-          reject(new Error(`Element ${attachTo?.element} not found within ${timeout}ms`));
+          reject(
+            new Error(
+              `Element ${attachTo?.element} not found within ${timeout}ms`
+            )
+          );
         } else {
           setTimeout(checkElement, intervalTime);
         }
       };
-  
+
       checkElement();
     });
   }
@@ -489,7 +515,7 @@ export class Step extends Evented {
         this._show()
       );
     }
-    if(this.options.attachTo?.wait) {
+    if (this.options.attachTo?.wait) {
       return this._waitForElement(this.options.attachTo.wait).then(() => {
         return this._show();
       });
@@ -657,11 +683,11 @@ export class Step extends Evented {
    * sets up a FloatingUI instance for the tooltip, then triggers `show`.
    * @private
    */
-  async _show() {
+  _show() {
     this.trigger('before-show');
 
     // Force resolve to make sure the options are updated on subsequent shows.
-    await this._resolveAttachToOptions();
+    this._resolveAttachToOptions();
     this._resolveExtraHiglightElements();
     this._setupElements();
 
@@ -702,17 +728,21 @@ export class Step extends Evented {
       el.classList.add(`${this.classPrefix}shepherd-enabled`);
       el.classList.add(`${this.classPrefix}shepherd-target`);
     });
-    this.observer = new MutationObserver(() => {
-      if (!document.body.contains(target)) {
-        console.log("Element no longer in DOM, canceling tour");
-        this.tour.cancel();
-      }
-    });
 
-    this.observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
+    // Cancel the tour when the target is removed from the body
+    if (this.options.attachTo) {
+      this.observer = new MutationObserver(() => {
+        if (!document.body.contains(target)) {
+          console.log('Element no longer in DOM, canceling tour');
+          this.tour.cancel();
+        }
+      });
+
+      this.observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    }
 
     this.trigger('show');
   }
