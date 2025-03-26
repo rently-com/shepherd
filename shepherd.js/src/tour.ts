@@ -164,6 +164,16 @@ export class Tour extends Evented {
   addStep(options: StepOptions | Step, index?: number) {
     let step = options;
 
+    const copy = this.steps.findIndex((s) => s.id == step.id);
+
+    // Remove existing step if ID is duplicated
+    if (copy !== -1) {
+      console.info(
+        `Step with ID "${this.steps[copy]?.id}" is removed due to duplication.`
+      );
+      this.steps.splice(copy, 1);
+    }
+
     if (!(step instanceof Step)) {
       step = new Step(this, step);
     } else {
