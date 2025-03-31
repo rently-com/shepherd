@@ -169,7 +169,7 @@ export class Tour extends Evented {
     // Remove existing step if ID is duplicated
     if (copy !== -1) {
       console.info(
-        `Step with ID "${this.steps[copy]?.id}" is removed due to duplication.`
+        `Step with ID "${this.steps[copy]?.id}" and name "${this.steps[copy]?.name}" is removed due to duplication.`
       );
       this.steps.splice(copy, 1);
     }
