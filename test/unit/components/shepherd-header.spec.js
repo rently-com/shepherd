@@ -88,4 +88,20 @@ describe('components/ShepherdHeader', () => {
     fireEvent.click(container.querySelector('.shepherd-cancel-icon'));
     expect(stepCancelSpy).toHaveBeenCalled();
   });
+
+  it('render title icon when passed in step.options.titleIcon', () => {
+    const step = new Step({}, {
+      titleIcon: '<svg class="test-icon">Test</svg>'
+    });
+
+    const { container } = render(ShepherdHeader, {
+      props: {
+        step
+      }
+    });
+
+    const titleIcon = container.querySelector('.shepherd-title-icon');
+    expect(titleIcon).toBeInTheDocument();
+    expect(container.querySelector('.test-icon')).toBeInTheDocument();
+  });
 });

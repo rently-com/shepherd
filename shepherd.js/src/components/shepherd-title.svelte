@@ -24,7 +24,9 @@
     {#if resolvedTitleIcon}
     <div bind:this={element} class="shepherd-title-icon"></div>
     {/if}
+    {#if resolvedTitle}
     <div class="shepherd-title-text">{resolvedTitle}</div>
+    {/if}
   </div>
 </div>
 

@@ -780,4 +780,46 @@ describe('Tour | Step', () => {
       });
     });
   });
+
+  describe('_waitForElement', () => {
+    
+    it('resolves if attachTo.element is a function returning an element', async () => {
+      const div = document.createElement('div');
+      document.body.appendChild(div);
+      const step = new Step(tour, {
+        attachTo: { element: () => div },
+      });
+      const promise = step._waitForElement(5000);
+      await expect(promise).resolves.toBe(div);
+    });
+  
+    it('resolves if element is added after the wait begins', async () => {
+      const div = document.createElement('div');
+      
+      const step = new Step(tour,{
+        attachTo: { element: '#test', on: 'auto', wait: 5000 },
+      });
+
+      setTimeout(() => {
+        div.id = 'test';
+        document.body.appendChild(div);
+      }, 1000);
+
+      tour.start()
+  
+      const promise = step._waitForElement(5000);
+      await expect(promise).resolves.toBe(div);
+    });
+  
+    it('rejects if element is not found within timeout', async () => {
+      const step = new Step(tour,{
+        attachTo: { element: '#not-there', wait: 2000 },
+      });
+  
+      const promise = step._waitForElement(2000);
+      await expect(promise).rejects.toThrow(
+        'Element #not-there not found within 2000ms'
+      );
+    });
+  })
 });

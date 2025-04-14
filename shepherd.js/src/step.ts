@@ -552,16 +552,16 @@ export class Step extends Evented {
 
   /**
    * Wraps `_show` and ensures `beforeShowPromise` resolves before calling show
+   * Wraps `_waitForElement` to wait for the element to appear before showing
    */
   show() {
     if (isFunction(this.options.beforeShowPromise)) {
-      return Promise.resolve(this.options.beforeShowPromise()).then(() =>
-        this._show()
-      );
-    }
-    if (this.options.attachTo?.wait) {
-      return this._waitForElement(this.options.attachTo.wait).then(() => {
-        return this._show();
+      return Promise.resolve(this.options.beforeShowPromise()).then(() => {
+        if (this.options.attachTo?.wait) {
+          return this._waitForElement(this.options.attachTo.wait).then(() =>
+            this._show()
+          );
+        }
       });
     }
     return Promise.resolve(this._show());

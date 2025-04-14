@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { jest } from '@jest/globals';
 import Shepherd from '../../shepherd.js/src/shepherd';
 import ResizeObserver from 'resize-observer-polyfill';
-import { setupTooltip } from '../../shepherd.js/src/utils/floating-ui';
+import { setupTooltip, positionOverlay } from '../../shepherd.js/src/utils/floating-ui';
 import { offset } from '@floating-ui/dom';
 
 const { Step } = Shepherd;
@@ -779,4 +779,58 @@ describe('Tour | Top-Level Class', function () {
       expect(modalContainer.contains(modalElement)).toBe(true);
     });
   });
+
+  describe('positionOverlay', () => {
+    it('create overlay and apply positioning when step.options.overlay is passed', function () {
+      instance = new Shepherd.Tour({ defaultStepOptions });
+
+      // create target element
+      const div = document.createElement('div');
+      div.classList.add('modifiers-test');
+      document.body.appendChild(div);
+      
+      // set target element position
+      Object.assign(div.style, {
+        position: 'absolute',
+        top: '100px',
+        left: '100px',
+        width: '200px',
+        height: '200px'
+      });
+
+      const step = instance.addStep({
+        id: 'test',
+        title: 'This is a test step for our tour',
+        attachTo: {
+          element: '.modifiers-test',
+          on: 'right-start'
+        },
+        overlay: {
+          class: 'shepherd-overlay',
+        }
+      });
+
+      instance.start();
+
+      
+      
+      const overlayOptions = positionOverlay(step);
+      expect(overlayOptions.placement).toBe('top-start');
+      expect(overlayOptions.middleware.length).toBe(1);
+      expect(overlayOptions.middleware[0].name).toBe('hide');
+      expect(overlayOptions.middleware[0].options.strategy).toBe('referenceHidden');
+
+      const overlay = document.querySelector('.shepherd-overlay');
+      expect(overlay).toBeInTheDocument();
+
+      const overlayPosition = overlay.getBoundingClientRect();
+      const targetPositions = div.getBoundingClientRect();
+
+      expect(targetPositions.x).toBe(overlayPosition.x);
+      expect(targetPositions.y).toBe(overlayPosition.y);
+      expect(overlayPosition.width).toBe(targetPositions.width);
+      expect(overlayPosition.height).toBe(targetPositions.height);
+    });
+  });
+
 });

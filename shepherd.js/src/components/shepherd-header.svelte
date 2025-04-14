@@ -13,7 +13,7 @@
 </script>
 
 <header class="shepherd-header">
-  {#if title}
+  {#if title || titleIcon}
     <ShepherdTitle {labelId} {title} {titleIcon}/>
   {/if}
 

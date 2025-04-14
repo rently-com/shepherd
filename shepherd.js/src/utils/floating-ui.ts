@@ -270,6 +270,13 @@ export function positionOverlay(step: Step) {
   // Cleanup previous overlay logic
   step._overlay?.cleanup?.();
 
+  const options : ComputePositionConfig = {
+    placement: 'top-start',
+    middleware: [
+      hide({ strategy: 'referenceHidden' }),
+    ],
+  };
+
   // Set up automatic position tracking
   const cleanup = autoUpdate(target, overlay, () => {
     // Target might no longer exist (e.g. at end of tour)
@@ -278,12 +285,7 @@ export function positionOverlay(step: Step) {
       return;
     }
 
-    computePosition(target, overlay, {
-      placement: 'top-start',
-      middleware: [
-        hide({ strategy: 'referenceHidden' }),
-      ],
-    }).then(({ middlewareData }) => {
+    computePosition(target, overlay, options).then(({ middlewareData }) => {
       const bounds = target.getBoundingClientRect();
       const isHidden = middlewareData.hide?.referenceHidden || !bounds;
 
@@ -306,6 +308,8 @@ export function positionOverlay(step: Step) {
 
   // Store cleanup for future teardown
   step._overlay.cleanup = cleanup;
+
+  return options;
 }
 
 

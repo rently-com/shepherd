@@ -64,4 +64,21 @@ describe('components/ShepherdFooter', () => {
     expect(nextButton).toHaveClass('shepherd-button-primary next-button shepherd-button');
     expect(nextButton).toHaveTextContent('Next');
   });
+
+  it('renders footer text when passed in `options.footerText`', () => {
+    const step = {
+      options: {
+        footerText: 'This is the footer text'
+      }
+    };
+
+    const { container } = render(ShepherdFooter, {
+      props: {
+        step
+      }
+    });
+
+    const footerText = container.querySelector('.shepherd-footer-text');
+    expect(footerText).toHaveTextContent('This is the footer text');
+  });
 });
