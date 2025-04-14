@@ -346,7 +346,7 @@ describe('Tour | Step', () => {
       expect(document.querySelector('.shepherd-text').textContent).toBe(
         'updated'
       );
-      expect(document.querySelector('.shepherd-title').textContent).toBe(
+      expect(document.querySelector('.shepherd-title-text').textContent).toBe(
         'New title'
       );
     });

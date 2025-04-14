@@ -1,6 +1,6 @@
 <script>
     import { afterUpdate } from 'svelte';
-  import { isFunction } from '../utils/type-check.ts';
+  import { isFunction, isUndefined } from '../utils/type-check.ts';
 
   export let labelId, title, titleIcon, element;
 
@@ -8,6 +8,9 @@
   $: resolvedTitle = isFunction(title) ? title() : title;
   $: resolvedTitleIcon = titleIcon;
   afterUpdate(() => {
+    if(isUndefined(resolvedTitleIcon)) {
+      return;
+    }
     if(isFunction(titleIcon)) {
       resolvedTitleIcon = titleIcon();
     }

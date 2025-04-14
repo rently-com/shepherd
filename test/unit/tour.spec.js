@@ -636,11 +636,12 @@ describe('Tour | Top-Level Class', function () {
 
       const options = setupTooltip(attachedStep);
       const middlewareNames = options.middleware.map(({ name }) => name);
-      expect(options.middleware.length).toBe(5);
+      expect(options.middleware.length).toBe(7);
       expect(middlewareNames.includes('offset')).toBe(true);
       expect(middlewareNames.includes('foo')).toBe(true);
       expect(middlewareNames.includes('shift')).toBe(true);
       expect(middlewareNames.includes('arrow')).toBe(true);
+      expect(middlewareNames.includes('hide')).toBe(true);
 
       document.body.removeChild(div);
     });
@@ -680,13 +681,13 @@ describe('Tour | Top-Level Class', function () {
       });
 
       const step2 = instance.addStep({
-        id: 'test',
+        id: 'test1',
         title: 'This is a test step for our tour',
         attachTo: { element: '.modifiers-test', on: 'auto-start' }
       });
 
       const step3 = instance.addStep({
-        id: 'test',
+        id: 'test2',
         title: 'This is a test step for our tour',
         attachTo: { element: '.modifiers-test', on: 'auto-end' }
       });

@@ -281,7 +281,6 @@ export function positionOverlay(step: Step) {
     computePosition(target, overlay, {
       placement: 'top-start',
       middleware: [
-        offset(0),
         hide({ strategy: 'referenceHidden' }),
       ],
     }).then(({ middlewareData }) => {
