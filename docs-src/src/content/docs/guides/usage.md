@@ -10,7 +10,7 @@ which should allow you to import using standard ES import syntax.
 i.e.
 
 ```js
-import Shepherd from 'shepherd.js';
+import Shepherd from '@rently-team/shepherd.js';
 ```
 
 First create a new `Tour` instance for your tour:

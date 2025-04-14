@@ -258,7 +258,7 @@ function addArrow(step: Step) {
   return false;
 }
 
-export function positionOverlay(step: Step) {
+export function positionOverlay(step: Step): ComputePositionConfig | void {
   const overlay = step._overlay?.element as HTMLElement;
   const target = step._resolvedAttachTo?.element as HTMLElement;
   const paddingX = step.options.overlay?.paddingX || 0;

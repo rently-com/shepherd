@@ -24,7 +24,7 @@
 <style global>
   .shepherd-text {
     color: rgba(0, 0, 0, 0.75);
-    font-size: 14/16rem;
+    font-size: 0.875rem;
     line-height: 1.25rem;
     font-weight: 400;
     font-family: Inter;

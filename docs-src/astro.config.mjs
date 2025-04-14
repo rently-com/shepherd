@@ -24,8 +24,8 @@ export default defineConfig({
       },
       plugins: [
         starlightTypeDoc({
-          entryPoints: ['./node_modules/shepherd.js/src/*.ts'],
-          tsconfig: './node_modules/shepherd.js/tsconfig.json',
+          entryPoints: ['./node_modules/@rently-team/shepherd.js/src/*.ts'],
+          tsconfig: './node_modules/@rently-team/shepherd.js/tsconfig.json',
           typeDoc: {
             entryPointStrategy: 'expand',
             includeVersion: true
