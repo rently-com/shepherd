@@ -13,11 +13,11 @@
     "cy:open": "./node_modules/.bin/cypress open",
     "cy:run:chrome": "cypress run --browser chrome",
     "start-test-server": "http-server -p 9002",
-    "test:ci": "start-server-and-test start-test-server http://127.0.0.1:9002 cy:run:chrome",
+    "test:ci": "start-server-and-test start-test-server http://127.0.0.1:9002 cy:run:firefox",
     "test:watch": "start-server-and-test start-test-server http://127.0.0.1:9002 cy:open"
   },
   "dependencies": {
-    "shepherd.js": "workspace:*"
+    "@rently-team/shepherd.js": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",

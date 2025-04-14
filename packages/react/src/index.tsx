@@ -1,5 +1,5 @@
 import { createContext, FC, useContext, type ReactNode } from 'react';
-import Shepherd from '@rently-team/shepherd';
+import Shepherd from '@rently-team/shepherd.js';
 
 interface ShepherdContextType {
   Shepherd: typeof Shepherd;

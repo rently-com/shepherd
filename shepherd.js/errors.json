@@ -1,6 +1,6 @@
 {
   "analysis": {
-    "packageName": "shepherd.js",
+    "packageName": "@rently-team/shepherd.js",
     "packageVersion": "12.0.2",
     "types": { "kind": "included" },
     "buildTools": {
