@@ -168,7 +168,7 @@ export class Tour extends Evented {
     // Remove existing step if ID is duplicated
     if (copy !== -1) {
       console.info(
-        `Step with ID "${this.steps[copy]?.id}" and name "${this.steps[copy]?.options.name}" is removed due to duplication.`
+        `Step with ID "${this.steps[copy]?.id}" is removed due to duplication.`
       );
       this.steps.splice(copy, 1);
     }
@@ -252,18 +252,6 @@ export class Tour extends Evented {
   getById(id: number | string) {
     return this.steps.find((step) => {
       return step.id === id;
-    });
-  }
-
-  /**
-   * Gets the steps from a given name
-   * @param name - The name of the step to retrieve
-   * @returns The array of steps with the given name
-   * @public
-   */
-  getByname(name: StepOptions["name"]): Array<Step>{
-    return this.steps.filter((step) => {
-      return step.options.name === name;
     });
   }
 

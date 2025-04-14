@@ -1,5 +1,5 @@
 packages:
-  - "shepherd.js"
+  - "@rently-team/shepherd"
   - "landing"
   - "packages/*"
   - "test/cypress"

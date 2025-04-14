@@ -25,6 +25,7 @@
     border-bottom-right-radius: 5px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     }
 
   .shepherd-footer .shepherd-button:last-child {

@@ -30,7 +30,7 @@
     "test:dev": "vitest"
   },
   "dependencies": {
-    "shepherd.js": "workspace:*"
+    "@rently-team/shepherd": "workspace:*"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.2.0",

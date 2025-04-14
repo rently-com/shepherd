@@ -226,7 +226,7 @@
   */
   .shepherd-element.shepherd-has-title[data-popper-placement^='bottom']
     > .shepherd-arrow::before {
-    background-color: #e6e6e6;
+    background-color: #FFFFFF;
   }
 
   .shepherd-target-click-disabled.shepherd-enabled.shepherd-target,

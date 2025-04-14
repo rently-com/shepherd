@@ -11,7 +11,9 @@ import {
   type ComputePositionConfig,
   type MiddlewareData,
   type Placement,
-  type Alignment
+  type Alignment,
+  offset,
+  hide,
 } from '@floating-ui/dom';
 import type { Step, StepOptions, StepOptionsAttachTo } from '../step.ts';
 import { isHTMLElement } from './type-check.ts';
@@ -143,6 +145,16 @@ function floatingUIposition(step: Step, shouldCenter: boolean) {
       });
     }
 
+    // Will hide the popup when the target is not visible
+    // and will make it visbile when the target appears again 
+    if (middlewareData.hide) {
+      Object.assign(step.el.style, {
+        visibility: middlewareData.hide.referenceHidden
+          ? 'hidden'
+          : 'visible',
+      });
+    }
+
     step.el.dataset['popperPlacement'] = placement;
 
     placeArrow(step.el, middlewareData);
@@ -219,10 +231,18 @@ export function getFloatingUIOptions(
       options.middleware.push(
         arrow({
           element: arrowEl,
-          padding: hasEdgeAlignment ? arrowOptions.padding : 0
+          padding: hasEdgeAlignment ? arrowOptions.padding : 20,
         })
       );
     }
+
+    options.middleware.push(
+      offset(step.options.offset || 0)
+    )
+
+    options.middleware.push(
+      hide({ strategy: 'referenceHidden' })
+    )
 
     if (!hasAutoPlacement) options.placement = attachToOptions.on as Placement;
   }
@@ -237,3 +257,56 @@ function addArrow(step: Step) {
 
   return false;
 }
+
+export function positionOverlay(step: Step) {
+  const overlay = step._overlay?.element as HTMLElement;
+  const target = step._resolvedAttachTo?.element as HTMLElement;
+  const paddingX = step.options.overlay?.paddingX || 0;
+  const paddingY = step.options.overlay?.paddingY || 0;
+
+  // Exit early if there's no overlay
+  if (!step._overlay) return;
+
+  // Cleanup previous overlay logic
+  step._overlay?.cleanup?.();
+
+  // Set up automatic position tracking
+  const cleanup = autoUpdate(target, overlay, () => {
+    // Target might no longer exist (e.g. at end of tour)
+    if (!target || !overlay) {
+      step._overlay?.cleanup?.();
+      return;
+    }
+
+    computePosition(target, overlay, {
+      placement: 'top-start',
+      middleware: [
+        offset(0),
+        hide({ strategy: 'referenceHidden' }),
+      ],
+    }).then(({ middlewareData }) => {
+      const bounds = target.getBoundingClientRect();
+      const isHidden = middlewareData.hide?.referenceHidden || !bounds;
+
+      if (isHidden) {
+        overlay.style.visibility = 'hidden';
+        return;
+      }
+
+      Object.assign(overlay.style, {
+        position: 'absolute',
+        left: `${bounds.x - paddingX}px`,
+        top: `${bounds.y - paddingY}px`,
+        width: `${bounds.width + paddingX * 2}px`,
+        height: `${bounds.height + paddingY * 2}px`,
+        visibility: 'visible',
+        padding: `${paddingY}px ${paddingX}px`,
+      });
+    });
+  });
+
+  // Store cleanup for future teardown
+  step._overlay.cleanup = cleanup;
+}
+
+
