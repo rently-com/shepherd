@@ -281,7 +281,7 @@ export interface StepOptionsAttachTo {
     | (() => HTMLElement | string | null | undefined);
   on?: PopperPlacement;
   /*
-   * The amount of waited for the element to appear in ms
+   * The amount of time waited for the element to appear in ms
    */
   wait?: number;
 }
