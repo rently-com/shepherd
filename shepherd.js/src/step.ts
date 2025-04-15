@@ -386,6 +386,7 @@ export class Step extends Evented {
   tour: Tour;
   observer?: MutationObserver;
   _overlay?: Overlay;
+  advanceEl?: HTMLElement | null;
 
   constructor(tour: Tour, options: StepOptions = {}) {
     super();
@@ -832,8 +833,11 @@ export class Step extends Evented {
             isHTMLElement(attachTo.element) &&
             attachTo.element !== this.target
           ) {
-            return this._show();
+            this._show();
           }
+        }
+        if (this.options.advanceOn?.selector && isHTMLElement(document.querySelector(this.options.advanceOn.selector)) && (!this.advanceEl || document.body.contains(this.advanceEl)) ) {
+          bindAdvance(this);
         }
       });
 

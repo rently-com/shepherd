@@ -43,6 +43,8 @@ export function bindAdvance(step: Step) {
           `No element was found for the selector supplied to advanceOn: ${selector}`
         );
       }
+
+      step.advanceEl = el as HTMLElement;
     }
 
     if (el) {
