@@ -1,5 +1,5 @@
 <script>
-    import { afterUpdate } from 'svelte';
+  import { afterUpdate } from 'svelte';
   import { isFunction, isUndefined } from '../utils/type-check.ts';
 
   export let labelId, title, titleIcon, element;
@@ -8,24 +8,23 @@
   $: resolvedTitle = isFunction(title) ? title() : title;
   $: resolvedTitleIcon = titleIcon;
   afterUpdate(() => {
-    if(isUndefined(resolvedTitleIcon)) {
+    if (isUndefined(resolvedTitleIcon)) {
       return;
     }
-    if(isFunction(titleIcon)) {
+    if (isFunction(titleIcon)) {
       resolvedTitleIcon = titleIcon();
     }
     element.innerHTML = resolvedTitleIcon;
   });
 </script>
 
-<!-- svelte-ignore a11y-missing-content -->
 <div id={labelId} class="shepherd-title">
   <div class="shepherd-title-container">
     {#if resolvedTitleIcon}
-    <div bind:this={element} class="shepherd-title-icon"></div>
+      <div bind:this={element} class="shepherd-title-icon"></div>
     {/if}
     {#if resolvedTitle}
-    <div class="shepherd-title-text">{resolvedTitle}</div>
+      <div class="shepherd-title-text">{resolvedTitle}</div>
     {/if}
   </div>
 </div>

@@ -17,7 +17,7 @@
       <ShepherdText {descriptionId} {step} />
     {/if}
 
-    {#if Array.isArray(step.options.buttons) && step.options.buttons.length || step.options.footerText}
+    {#if (Array.isArray(step.options.buttons) && step.options.buttons.length) || step.options.footerText}
       <ShepherdFooter {step} />
     {/if}
   </div>
@@ -29,7 +29,7 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 12px
+    gap: 12px;
   }
   .shepherd-body {
     display: flex;

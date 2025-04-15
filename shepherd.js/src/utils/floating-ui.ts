@@ -13,7 +13,7 @@ import {
   type Placement,
   type Alignment,
   offset,
-  hide,
+  hide
 } from '@floating-ui/dom';
 import type { Step, StepOptions, StepOptionsAttachTo } from '../step.ts';
 import { isHTMLElement } from './type-check.ts';
@@ -146,12 +146,10 @@ function floatingUIposition(step: Step, shouldCenter: boolean) {
     }
 
     // Will hide the popup when the target is not visible
-    // and will make it visbile when the target appears again 
+    // and will make it visbile when the target appears again
     if (middlewareData.hide) {
       Object.assign(step.el.style, {
-        visibility: middlewareData.hide.referenceHidden
-          ? 'hidden'
-          : 'visible',
+        visibility: middlewareData.hide.referenceHidden ? 'hidden' : 'visible'
       });
     }
 
@@ -231,18 +229,14 @@ export function getFloatingUIOptions(
       options.middleware.push(
         arrow({
           element: arrowEl,
-          padding: hasEdgeAlignment ? arrowOptions.padding : 20,
+          padding: hasEdgeAlignment ? arrowOptions.padding : 20
         })
       );
     }
 
-    options.middleware.push(
-      offset(step.options.offset || 0)
-    )
+    options.middleware.push(offset(step.options.offset || 0));
 
-    options.middleware.push(
-      hide({ strategy: 'referenceHidden' })
-    )
+    options.middleware.push(hide({ strategy: 'referenceHidden' }));
 
     if (!hasAutoPlacement) options.placement = attachToOptions.on as Placement;
   }
@@ -270,11 +264,9 @@ export function positionOverlay(step: Step): ComputePositionConfig | void {
   // Cleanup previous overlay logic
   step._overlay?.cleanup?.();
 
-  const options : ComputePositionConfig = {
+  const options: ComputePositionConfig = {
     placement: 'top-start',
-    middleware: [
-      hide({ strategy: 'referenceHidden' }),
-    ],
+    middleware: [hide({ strategy: 'referenceHidden' })]
   };
 
   // Set up automatic position tracking
@@ -301,7 +293,7 @@ export function positionOverlay(step: Step): ComputePositionConfig | void {
         width: `${bounds.width + paddingX * 2}px`,
         height: `${bounds.height + paddingY * 2}px`,
         visibility: 'visible',
-        padding: `${paddingY}px ${paddingX}px`,
+        padding: `${paddingY}px ${paddingX}px`
       });
     });
   });
@@ -311,5 +303,3 @@ export function positionOverlay(step: Step): ComputePositionConfig | void {
 
   return options;
 }
-
-

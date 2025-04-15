@@ -220,7 +220,7 @@ export interface StepOptions {
    * Doesnt have any impact on the step
    */
   static?: boolean;
-  
+
   /**
    * You can define `show`, `hide`, etc events inside `when`. For example:
    * ```js
@@ -241,7 +241,7 @@ export interface StepOptions {
    * ```
    */
   offset?: OffsetOptions;
-  
+
   /**
    * Configuration for an overlay element positioned over the target element.
    */
@@ -555,16 +555,18 @@ export class Step extends Evented {
    * Wraps `_waitForElement` to wait for the element to appear before showing
    */
   show() {
+    const promises = [];
+
     if (isFunction(this.options.beforeShowPromise)) {
-      return Promise.resolve(this.options.beforeShowPromise()).then(() => {
-        if (this.options.attachTo?.wait) {
-          return this._waitForElement(this.options.attachTo.wait).then(() =>
-            this._show()
-          );
-        }
-      });
+      promises.push(Promise.resolve(this.options.beforeShowPromise()));
     }
-    return Promise.resolve(this._show());
+
+    if (this.options.attachTo?.wait) {
+      promises.push(this._waitForElement(this.options.attachTo.wait));
+    }
+
+    // Promise.all([]) resolves immediately if the array is empty
+    return Promise.all(promises).then(() => this._show());
   }
 
   /**
@@ -701,18 +703,18 @@ export class Step extends Evented {
       });
     }
   }
-  
+
   /**
    * Creates a overlay element that appears above the target
    * @returns HTMLElement
    */
   _createOverlay() {
     this._overlay = {
-      element: document.createElement('div'),
+      element: document.createElement('div')
     };
     Object.assign(this._overlay.element.style, {
       position: 'absoulte',
-      zIndex: '9999',
+      zIndex: '9999'
     });
     this._overlay.element.className = `${this.classPrefix}shepherd-overlay`;
     document.body.appendChild(this._overlay.element);
@@ -725,9 +727,9 @@ export class Step extends Evented {
    * @returns void
    */
   _removeOverlay() {
-    if(this._overlay) {
+    if (this._overlay) {
       this._overlay?.cleanup?.();
-      if(isHTMLElement(this._overlay.element)) {
+      if (isHTMLElement(this._overlay.element)) {
         this._overlay.element.remove();
       }
     }
@@ -749,7 +751,11 @@ export class Step extends Evented {
     }
 
     // create the overlay element and position itself with autoupdate
-    if (this.options.overlay && this.options.attachTo?.element && this._resolvedAttachTo?.element) {
+    if (
+      this.options.overlay &&
+      this.options.attachTo?.element &&
+      this._resolvedAttachTo?.element
+    ) {
       const overlay = this._createOverlay();
       overlay.classList.add(this.options.overlay.class);
       positionOverlay(this);
@@ -815,16 +821,17 @@ export class Step extends Evented {
     if (this.options.attachTo && this.target) {
       this.observer = new MutationObserver(() => {
         if (!document.body.contains(target)) {
-
           //Hide the elements if the target is removed
-          if(isHTMLElement(this.el))
-            this.el.hidden = true;
-          if(isHTMLElement(this._overlay?.element))
+          if (isHTMLElement(this.el)) this.el.hidden = true;
+          if (isHTMLElement(this._overlay?.element))
             this._overlay.element.hidden = true;
 
           // restart the step if the element appeared again
           const attachTo = this._resolveAttachToOptions();
-          if(isHTMLElement(attachTo.element) && attachTo.element !== this.target) {
+          if (
+            isHTMLElement(attachTo.element) &&
+            attachTo.element !== this.target
+          ) {
             return this._show();
           }
         }

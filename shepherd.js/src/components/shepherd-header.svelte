@@ -14,7 +14,7 @@
 
 <header class="shepherd-header">
   {#if title || titleIcon}
-    <ShepherdTitle {labelId} {title} {titleIcon}/>
+    <ShepherdTitle {labelId} {title} {titleIcon} />
   {/if}
 
   {#if cancelIcon && cancelIcon.enabled}
@@ -32,6 +32,6 @@
   }
 
   .shepherd-has-title .shepherd-content .shepherd-header {
-    background: #FFFFFF;
+    background: #ffffff;
   }
 </style>

@@ -5,7 +5,9 @@
   export let step, footerText;
 
   $: buttons = step.options.buttons;
-  $: footerText = isFunction(footerText) ? step.options.footerText() : step.options.footerText;
+  $: footerText = isFunction(footerText)
+    ? step.options.footerText()
+    : step.options.footerText;
 </script>
 
 <footer class="shepherd-footer">
@@ -26,7 +28,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    }
+  }
 
   .shepherd-footer .shepherd-button:last-child {
     margin-right: 0;
@@ -39,6 +41,6 @@
     line-height: 20px;
     letter-spacing: 0px;
     font-weight: 400;
-    color: #4B5563;
+    color: #4b5563;
   }
 </style>

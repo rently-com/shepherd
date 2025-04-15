@@ -154,7 +154,9 @@
     background: #fff;
     border: none;
     border-radius: 20px;
-    box-shadow: 0px -1px 8px -4px #10182814, 0px 10px 25px -3px #10182826;
+    box-shadow:
+      0px -1px 8px -4px #10182814,
+      0px 10px 25px -3px #10182826;
     margin: 0;
     max-width: 300px;
     opacity: 0;
@@ -226,7 +228,7 @@
   */
   .shepherd-element.shepherd-has-title[data-popper-placement^='bottom']
     > .shepherd-arrow::before {
-    background-color: #FFFFFF;
+    background-color: #ffffff;
   }
 
   .shepherd-target-click-disabled.shepherd-enabled.shepherd-target,
