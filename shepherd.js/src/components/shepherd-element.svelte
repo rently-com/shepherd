@@ -168,7 +168,7 @@
     visibility: hidden;
     width: 100%;
     z-index: 9999;
-    padding: 1rem;
+    padding: 16px 20px;
   }
 
   .shepherd-enabled.shepherd-element {

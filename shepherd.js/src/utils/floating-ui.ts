@@ -229,7 +229,7 @@ export function getFloatingUIOptions(
       options.middleware.push(
         arrow({
           element: arrowEl,
-          padding: hasEdgeAlignment ? arrowOptions.padding : 20
+          padding: hasEdgeAlignment ? arrowOptions.padding : 22
         })
       );
     }

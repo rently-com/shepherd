@@ -34,6 +34,6 @@
   .shepherd-body {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
   }
 </style>

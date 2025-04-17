@@ -28,6 +28,7 @@
     line-height: 1.25rem;
     font-weight: 400;
     font-family: Inter;
+    letter-spacing: 0px;
   }
 
   .shepherd-text p {
