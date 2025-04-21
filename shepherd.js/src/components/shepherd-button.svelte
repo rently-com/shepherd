@@ -36,13 +36,17 @@
 
 <style global>
   .shepherd-button {
-    background: rgb(50, 136, 230);
+    background: #2B4790;
     border: 0;
-    border-radius: 3px;
-    color: rgba(255, 255, 255, 0.75);
+    border-radius: 0.75rem;
+    color: #FFFFFF;
     cursor: pointer;
     margin-right: 0.5rem;
     padding: 0.5rem 1.5rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-align: center;
     transition: all 0.5s ease;
   }
 

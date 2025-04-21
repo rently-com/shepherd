@@ -258,10 +258,8 @@ export function positionOverlay(step: Step): ComputePositionConfig | void {
   const paddingX = step.options.overlay?.paddingX || 0;
   const paddingY = step.options.overlay?.paddingY || 0;
 
-  // Exit early if there's no overlay
   if (!step._overlay) return;
 
-  // Cleanup previous overlay logic
   step._overlay?.cleanup?.();
 
   const options: ComputePositionConfig = {
@@ -269,37 +267,65 @@ export function positionOverlay(step: Step): ComputePositionConfig | void {
     middleware: [hide({ strategy: 'referenceHidden' })]
   };
 
-  // Set up automatic position tracking
   const cleanup = autoUpdate(target, overlay, () => {
-    // Target might no longer exist (e.g. at end of tour)
     if (!target || !overlay) {
       step._overlay?.cleanup?.();
       return;
     }
 
     computePosition(target, overlay, options).then(({ middlewareData }) => {
-      const bounds = target.getBoundingClientRect();
-      const isHidden = middlewareData.hide?.referenceHidden || !bounds;
+      const targetRect = target.getBoundingClientRect();
+      const scrollContainer = getScrollableAncestor(target);
+      const containerRect = scrollContainer?.getBoundingClientRect() ?? {
+        top: 0,
+        left: 0,
+        right: window.innerWidth,
+        bottom: window.innerHeight,
+      };
 
+      const isHidden = middlewareData.hide?.referenceHidden || false;
       if (isHidden) {
         overlay.style.visibility = 'hidden';
         return;
       }
 
+      const visibleLeft = Math.max(targetRect.left - paddingX, containerRect.left);
+      const visibleTop = Math.max(targetRect.top - paddingY, containerRect.top);
+      const visibleRight = Math.min(targetRect.right + paddingX, containerRect.right);
+      const visibleBottom = Math.min(targetRect.bottom + paddingY, containerRect.bottom);
+
+      const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+
       Object.assign(overlay.style, {
         position: 'absolute',
-        left: `${bounds.x - paddingX}px`,
-        top: `${bounds.y - paddingY}px`,
-        width: `${bounds.width + paddingX * 2}px`,
-        height: `${bounds.height + paddingY * 2}px`,
+        left: `${visibleLeft + window.scrollX}px`,
+        top: `${visibleTop + window.scrollY}px`,
+        width: `${visibleWidth}px`,
+        height: `${visibleHeight}px`,
         visibility: 'visible',
-        padding: `${paddingY}px ${paddingX}px`
+        padding: `${paddingY}px ${paddingX}px`,
+        boxSizing: 'border-box',
       });
     });
   });
 
-  // Store cleanup for future teardown
   step._overlay.cleanup = cleanup;
 
   return options;
 }
+
+
+const getScrollableAncestor = (el: HTMLElement): HTMLElement | null => {
+  let parent = el.parentElement;
+  while (parent) {
+    const style = getComputedStyle(parent);
+    const overflowY = style.overflowY;
+    const overflowX = style.overflowX;
+    if (/(auto|scroll|overlay)/.test(overflowY + overflowX)) {
+      return parent;
+    }
+    parent = parent.parentElement;
+  }
+  return null;
+};
