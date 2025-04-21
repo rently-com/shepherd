@@ -13,7 +13,8 @@ import {
   type Placement,
   type Alignment,
   offset,
-  hide
+  hide,
+  size
 } from '@floating-ui/dom';
 import type { Step, StepOptions, StepOptionsAttachTo } from '../step.ts';
 import { isHTMLElement } from './type-check.ts';
@@ -209,7 +210,7 @@ export function getFloatingUIOptions(
         })
       );
     } else {
-      options.middleware.push(flip());
+      options.middleware.push(flip({fallbackAxisSideDirection: 'start'}));
     }
 
     options.middleware.push(
@@ -237,6 +238,8 @@ export function getFloatingUIOptions(
     options.middleware.push(offset(step.options.offset || 0));
 
     options.middleware.push(hide({ strategy: 'referenceHidden' }));
+
+    options.middleware.push(size())
 
     if (!hasAutoPlacement) options.placement = attachToOptions.on as Placement;
   }

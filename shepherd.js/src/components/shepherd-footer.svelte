@@ -15,9 +15,11 @@
     <span class="shepherd-footer-text">{footerText}</span>
   {/if}
   {#if buttons}
-    {#each buttons as config}
-      <ShepherdButton {config} {step} />
-    {/each}
+    <div class="shepherd-footer-buttons">
+      {#each buttons as config}
+        <ShepherdButton {config} {step} />
+      {/each}
+    </div>    
   {/if}
 </footer>
 
@@ -42,5 +44,12 @@
     letter-spacing: 0px;
     font-weight: 400;
     color: #4b5563;
+  }
+  
+  .shepherd-footer-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
   }
 </style>

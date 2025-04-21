@@ -158,7 +158,7 @@
       0px -1px 8px -4px #10182814,
       0px 10px 25px -3px #10182826;
     margin: 0;
-    max-width: 300px;
+    max-width: 288px;
     opacity: 0;
     outline: none;
     padding: 0;
