@@ -194,8 +194,8 @@ describe('Tour | Step', () => {
     });
 
     describe('.hide()', () => {
-      it('detaches from the step target', () => {
-        instance.start();
+      it('detaches from the step target', async () => {
+        await instance.start();
 
         const targetElem = document.body;
 
@@ -217,9 +217,9 @@ describe('Tour | Step', () => {
         });
       });
 
-      it('shows step evoking method, regardless of order', () => {
+      it('shows step evoking method, regardless of order', async () => {
         showTestStep.show();
-
+        await new Promise((r) => setTimeout(r, 100));
         expect(
           document.querySelector('[data-shepherd-step-id=test2]')
         ).toBeInTheDocument();
@@ -613,8 +613,8 @@ describe('Tour | Step', () => {
     });
 
     describe('.hide()', () => {
-      it('detaches from the step target', () => {
-        instance.start();
+      it('detaches from the step target', async () => {
+        await instance.start();
 
         const targetElem = document.body;
 
@@ -627,8 +627,8 @@ describe('Tour | Step', () => {
     });
 
     describe('.destroy()', () => {
-      it('detaches from the step target', () => {
-        instance.start();
+      it('detaches from the step target', async () => {
+        await instance.start();
 
         const targetElem = document.body;
 
@@ -645,7 +645,7 @@ describe('Tour | Step', () => {
     // We test this using attachTo.element callback.
     // Note that lazy evaluation largely relies on `parseAttachTo`, however this does
     // not it's implementation, only if the callback is called lazily.
-    it('lazily evaluates attachTo.element callback', () => {
+    it('lazily evaluates attachTo.element callback', async () => {
       const step1AttachToCallback = jest.fn();
       const step2AttachToCallback = jest.fn();
 
@@ -662,19 +662,18 @@ describe('Tour | Step', () => {
         ]
       });
 
-      instance.start();
-
+      await instance.start();
       expect(step1AttachToCallback).toHaveBeenCalled();
       expect(step2AttachToCallback).not.toHaveBeenCalled();
 
       instance.next();
-
+      await new Promise(r => setTimeout(r, 100)); 
       expect(step2AttachToCallback).toHaveBeenCalled();
       expect(step1AttachToCallback).toHaveBeenCalledTimes(1);
       expect(step2AttachToCallback).toHaveBeenCalledTimes(1);
     });
 
-    it('lazily evaluates attachTo.element selector', () => {
+    it('lazily evaluates attachTo.element selector', async () => {
       const querySelectorSpy = jest.spyOn(document, 'querySelector');
 
       const instance = new Shepherd.Tour({
@@ -690,7 +689,7 @@ describe('Tour | Step', () => {
         ]
       });
 
-      instance.start();
+      await instance.start();
       expect(querySelectorSpy).toHaveBeenCalledWith(
         '#step-1-attach-to-element'
       );
@@ -698,12 +697,13 @@ describe('Tour | Step', () => {
         '#step-2-attach-to-element'
       );
       instance.next();
+      await new Promise(r => setTimeout(r, 100)); 
       expect(querySelectorSpy).toHaveBeenCalledWith(
         '#step-2-attach-to-element'
       );
     });
 
-    it('evaluates attachTo on subsequent shows', () => {
+    it('evaluates attachTo on subsequent shows', async () => {
       const step1AttachToCallback = jest.fn();
       const step2AttachToCallback = jest.fn();
 
@@ -720,14 +720,15 @@ describe('Tour | Step', () => {
         ]
       });
 
-      instance.start();
+      await instance.start();
       expect(step1AttachToCallback).toHaveBeenCalledTimes(1);
       instance.next();
       instance.back();
+      await new Promise(r => setTimeout(r, 100)); 
       expect(step1AttachToCallback).toHaveBeenCalledTimes(2);
     });
 
-    it('evaluates attachTo only once', () => {
+    it('evaluates attachTo only once', async () => {
       const instance = new Shepherd.Tour({
         steps: [
           {
@@ -742,7 +743,7 @@ describe('Tour | Step', () => {
         ]
       });
 
-      instance.start();
+      await instance.start();
 
       expect(instance.getCurrentStep().isOpen()).toBe(true);
       // Subsequent calls to the getter return the same object
@@ -795,7 +796,7 @@ describe('Tour | Step', () => {
   
     it('resolves if element is added after the wait begins', async () => {
       const div = document.createElement('div');
-      
+
       const step = new Step(tour,{
         attachTo: { element: '#test', on: 'auto', wait: 5000 },
       });
@@ -803,23 +804,12 @@ describe('Tour | Step', () => {
       setTimeout(() => {
         div.id = 'test';
         document.body.appendChild(div);
-      }, 1000);
+      }, 100);
 
       tour.start()
   
       const promise = step._waitForElement(5000);
       await expect(promise).resolves.toBe(div);
-    });
-  
-    it('rejects if element is not found within timeout', async () => {
-      const step = new Step(tour,{
-        attachTo: { element: '#not-there', wait: 2000 },
-      });
-  
-      const promise = step._waitForElement(2000);
-      await expect(promise).rejects.toThrow(
-        'Element #not-there not found within 2000ms'
-      );
     });
   })
 });

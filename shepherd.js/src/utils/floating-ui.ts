@@ -325,7 +325,12 @@ const getScrollableAncestor = (el: HTMLElement): HTMLElement | null => {
     const style = getComputedStyle(parent);
     const overflowY = style.overflowY;
     const overflowX = style.overflowX;
-    if (/(auto|scroll|overlay)/.test(overflowY + overflowX)) {
+
+    const isScrollableStyle = /(auto|scroll|overlay)/.test(overflowY + overflowX);
+    const isActuallyOverflowing =
+      parent.scrollHeight > parent.clientHeight || parent.scrollWidth > parent.clientWidth;
+
+    if (isScrollableStyle && isActuallyOverflowing) {
       return parent;
     }
     parent = parent.parentElement;

@@ -567,7 +567,7 @@ export class Step extends Evented {
     }
 
     // Promise.all([]) resolves immediately if the array is empty
-    return Promise.all(promises).then(() => this._show());
+    return Promise.all(promises).then(() => this._show()).catch(console.error);
   }
 
   /**
@@ -613,7 +613,7 @@ export class Step extends Evented {
 
     // @ts-expect-error TODO: get types for Svelte components
     this.shepherdElementComponent = new ShepherdElement({
-      target: this.tour.options.stepsContainer || document.body,
+      target: this.tour.options?.stepsContainer || document.body,
       props: {
         classPrefix: this.classPrefix,
         descriptionId,

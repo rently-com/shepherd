@@ -205,13 +205,13 @@ describe('Tour | Top-Level Class', function () {
     });
 
     describe('.hide()', function () {
-      it('hides the current step', () => {
+      it('hides the current step', async () => {
         const [firstStep] = instance.steps;
         const hideStepSpy = jest.spyOn(firstStep, 'hide');
 
         expect(firstStep.isOpen()).toBe(false);
 
-        instance.start();
+        await instance.start();
 
         expect(firstStep.isOpen()).toBe(true);
 
@@ -447,7 +447,7 @@ describe('Tour | Top-Level Class', function () {
         ).toBe(null);
       });
 
-      it('removes any of its `Step` tooltip elements from the DOM', function () {
+      it('removes any of its `Step` tooltip elements from the DOM', async function () {
         const testStep = {
           id: 'element-removal-test',
           classes: 'element-removal-test',
@@ -455,9 +455,9 @@ describe('Tour | Top-Level Class', function () {
         };
 
         instance.addStep(testStep);
-        instance.start();
+        await instance.start();
         instance.show('element-removal-test');
-
+        await new Promise((resolve) => setTimeout(resolve, 100));
         expect(
           document.querySelector('.element-removal-test'),
           'a step is rendered in the DOM after the tour starts'
@@ -501,9 +501,9 @@ describe('Tour | Top-Level Class', function () {
         expect(instance.steps.length).toBe(3);
       });
 
-      it('hides the step before removing', function () {
+      it('hides the step before removing', async function () {
         let hideFired = false;
-        instance.start();
+        await instance.start();
         expect(instance.steps.length).toBe(4);
         const step = instance.getById('test');
         step.on('hide', () => {
@@ -567,7 +567,7 @@ describe('Tour | Top-Level Class', function () {
   });
 
   describe('floatingUIOptions', () => {
-    it('applies the default modifiers from defaultStepOptions', function () {
+    it('applies the default modifiers from defaultStepOptions', async function () {
       instance = new Shepherd.Tour({ defaultStepOptions });
 
       const step = instance.addStep({
@@ -575,13 +575,13 @@ describe('Tour | Top-Level Class', function () {
         title: 'This is a test step for our tour'
       });
 
-      instance.start();
+      await instance.start();
 
       const floatingUIOptions = setupTooltip(step);
       expect(floatingUIOptions.middleware.length).toBe(1);
     });
 
-    it('adds a step modifer to default modifiers', function () {
+    it('adds a step modifer to default modifiers', async function () {
       instance = new Shepherd.Tour({ defaultStepOptions });
 
       const step = instance.addStep({
@@ -592,13 +592,13 @@ describe('Tour | Top-Level Class', function () {
         }
       });
 
-      instance.start();
+      await instance.start();
 
       const floatingUIOptions = setupTooltip(step);
       expect(floatingUIOptions.middleware.length).toBe(2);
     });
 
-    it('correctly changes modifiers when going from centered to attached', function () {
+    it('correctly changes modifiers when going from centered to attached', async function () {
       const div = document.createElement('div');
       div.classList.add('modifiers-test');
       document.body.appendChild(div);
@@ -621,7 +621,7 @@ describe('Tour | Top-Level Class', function () {
         }
       });
 
-      instance.start();
+      await instance.start();
 
       const centeredOptions = setupTooltip(centeredStep);
       const centeredMiddlewareNames = centeredOptions.middleware.map(
@@ -633,20 +633,22 @@ describe('Tour | Top-Level Class', function () {
       expect(centeredMiddlewareNames.includes('arrow')).toBe(false);
 
       instance.next();
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const options = setupTooltip(attachedStep);
       const middlewareNames = options.middleware.map(({ name }) => name);
-      expect(options.middleware.length).toBe(7);
+      expect(options.middleware.length).toBe(8);
       expect(middlewareNames.includes('offset')).toBe(true);
       expect(middlewareNames.includes('foo')).toBe(true);
       expect(middlewareNames.includes('shift')).toBe(true);
       expect(middlewareNames.includes('arrow')).toBe(true);
       expect(middlewareNames.includes('hide')).toBe(true);
+      expect(middlewareNames.includes('size')).toBe(true);
 
       document.body.removeChild(div);
     });
 
-    it('renders step in stepsContainer', () => {
+    it('renders step in stepsContainer', async () => {
       const stepsContainer = document.createElement('div');
       stepsContainer.setAttribute('id', 'customStepTarget');
       document.body.appendChild(stepsContainer);
@@ -661,14 +663,14 @@ describe('Tour | Top-Level Class', function () {
         title: 'This is a test step for our tour'
       });
 
-      instance.start();
+      await instance.start();
 
       const stepElement = step.getElement();
 
       expect(stepsContainer.contains(stepElement)).toBe(true);
     });
 
-    it('adds autoPlacement middleware when attachTo.on is set to auto', () => {
+    it('adds autoPlacement middleware when attachTo.on is set to auto', async () => {
       const div = document.createElement('div');
       div.classList.add('modifiers-test');
       document.body.appendChild(div);
@@ -692,7 +694,7 @@ describe('Tour | Top-Level Class', function () {
         attachTo: { element: '.modifiers-test', on: 'auto-end' }
       });
 
-      instance.start();
+      await instance.start();
 
       const step1FloatingUIOptions = setupTooltip(step1);
       const step1MiddlewareNames = step1FloatingUIOptions.middleware.map(
@@ -706,6 +708,7 @@ describe('Tour | Top-Level Class', function () {
       expect(step1PlacementMiddleware.options.alignment).toBe(null);
 
       instance.next();
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const step2FloatingUIOptions = setupTooltip(step2);
       const step2PlacementMiddleware = step2FloatingUIOptions.middleware.find(
@@ -714,6 +717,7 @@ describe('Tour | Top-Level Class', function () {
       expect(step2PlacementMiddleware.options.alignment).toBe('start');
 
       instance.next();
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const step3FloatingUIOptions = setupTooltip(step3);
       const step3PlacementMiddleware = step3FloatingUIOptions.middleware.find(
@@ -781,7 +785,7 @@ describe('Tour | Top-Level Class', function () {
   });
 
   describe('positionOverlay', () => {
-    it('create overlay and apply positioning when step.options.overlay is passed', function () {
+    it('create overlay and apply positioning when step.options.overlay is passed', async function () {
       instance = new Shepherd.Tour({ defaultStepOptions });
 
       // create target element
@@ -810,7 +814,7 @@ describe('Tour | Top-Level Class', function () {
         }
       });
 
-      instance.start();
+      await instance.start();
 
       
       
