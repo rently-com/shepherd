@@ -213,13 +213,14 @@ export function getFloatingUIOptions(
       options.middleware.push(flip({fallbackAxisSideDirection: 'start'}));
     }
 
-    options.middleware.push(
-      // Replicate PopperJS default behavior.
-      shift({
-        limiter: limitShift(),
-        crossAxis: true
-      })
-    );
+    if (!attachToOptions.strict)
+      options.middleware.push(
+        // Replicate PopperJS default behavior.
+        shift({
+          limiter: limitShift(),
+          crossAxis: true
+        })
+      );
 
     if (arrowEl) {
       const arrowOptions =

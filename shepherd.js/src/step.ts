@@ -284,6 +284,8 @@ export interface StepOptionsAttachTo {
    * The amount of time waited for the element to appear in ms
    */
   wait?: number;
+
+  strict?: boolean;
 }
 
 export interface StepOverlay {
