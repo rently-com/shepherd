@@ -564,10 +564,6 @@ export class Step extends Evented {
       promises.push(Promise.resolve(this.options.beforeShowPromise()));
     }
 
-    if (this.options.attachTo?.wait) {
-      promises.push(this._waitForElement(this.options.attachTo.wait));
-    }
-
     // Promise.all([]) resolves immediately if the array is empty
     return Promise.all(promises).then(() => this._show()).catch(console.error);
   }
@@ -774,8 +770,8 @@ export class Step extends Evented {
    * sets up a FloatingUI instance for the tooltip, then triggers `show`.
    * @private
    */
-  _show() {
-    this.trigger('before-show');
+  _show(trigger = true) {
+    if (trigger) this.trigger('before-show');
 
     // Force resolve to make sure the options are updated on subsequent shows.
     this._resolveAttachToOptions();
@@ -821,22 +817,25 @@ export class Step extends Evented {
     });
 
     // Cancel the tour when the target is removed from the body
-    if (this.options.attachTo && this.target) {
+    if (this.options.attachTo && target && !this.observer) {
       this.observer = new MutationObserver(() => {
+
+        // hide element if the target is removed
         if (!document.body.contains(target)) {
           //Hide the elements if the target is removed
           if (isHTMLElement(this.el)) this.el.hidden = true;
           if (isHTMLElement(this._overlay?.element))
             this._overlay.element.hidden = true;
+        }
+        
+        // restart the step if the element appeared again
+        const attachTo = this._resolveAttachToOptions();
 
-          // restart the step if the element appeared again
-          const attachTo = this._resolveAttachToOptions();
-          if (
-            isHTMLElement(attachTo.element) &&
-            attachTo.element !== this.target
-          ) {
-            this._show();
-          }
+        if (
+          isHTMLElement(attachTo.element) &&
+          attachTo.element !== target
+        ) {
+          this._show(false);
         }
         if (this.options.advanceOn?.selector && isHTMLElement(document.querySelector(this.options.advanceOn.selector)) && (!this.advanceEl || document.body.contains(this.advanceEl)) ) {
           bindAdvance(this);
@@ -849,7 +848,7 @@ export class Step extends Evented {
       });
     }
 
-    this.trigger('show');
+    if (trigger) this.trigger('show');
   }
 
   /**
@@ -895,6 +894,7 @@ export class Step extends Evented {
     const target = this.target || document.body;
     const extraHighlightElements = this._resolvedExtraHighlightElements;
     this.observer?.disconnect();
+    this.observer = undefined;
 
     const highlightClass = this.options.highlightClass;
     if (highlightClass) {
