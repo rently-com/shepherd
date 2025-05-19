@@ -521,7 +521,7 @@ export class Step extends Evented {
   }
 
   _waitForElement(timeout = 5000) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const intervalTime = 100;
       const endTime = Date.now() + timeout;
       const attachTo = this.options.attachTo;
@@ -539,11 +539,7 @@ export class Step extends Evented {
         if (element) {
           resolve(element);
         } else if (Date.now() > endTime) {
-          reject(
-            new Error(
-              `Element ${attachTo?.element} not found within ${timeout}ms`
-            )
-          );
+          resolve(document.body);
         } else {
           setTimeout(checkElement, intervalTime);
         }
@@ -562,6 +558,10 @@ export class Step extends Evented {
 
     if (isFunction(this.options.beforeShowPromise)) {
       promises.push(Promise.resolve(this.options.beforeShowPromise()));
+    }
+
+    if (this.options.attachTo?.wait) {
+      promises.push(this._waitForElement(this.options.attachTo.wait));
     }
 
     // Promise.all([]) resolves immediately if the array is empty
