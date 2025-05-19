@@ -520,10 +520,9 @@ export class Step extends Evented {
     return Boolean(this.el && !this.el.hidden);
   }
 
-  _waitForElement(timeout = 5000) {
+  _waitForElement() {
     return new Promise((resolve) => {
       const intervalTime = 100;
-      const endTime = Date.now() + timeout;
       const attachTo = this.options.attachTo;
 
       const checkElement = () => {
@@ -538,8 +537,6 @@ export class Step extends Evented {
         element = document.querySelector(attachTo?.element as string);
         if (element) {
           resolve(element);
-        } else if (Date.now() > endTime) {
-          resolve(document.body);
         } else {
           setTimeout(checkElement, intervalTime);
         }
@@ -561,7 +558,7 @@ export class Step extends Evented {
     }
 
     if (this.options.attachTo?.wait) {
-      promises.push(this._waitForElement(this.options.attachTo.wait));
+      promises.push(this._waitForElement());
     }
 
     // Promise.all([]) resolves immediately if the array is empty
