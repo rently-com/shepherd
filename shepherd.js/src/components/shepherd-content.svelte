@@ -12,19 +12,28 @@
     <ShepherdHeader {labelId} {step} />
   {/if}
 
-  {#if !isUndefined(step.options.text)}
-    <ShepherdText {descriptionId} {step} />
-  {/if}
+  <div class="shepherd-body">
+    {#if !isUndefined(step.options.text)}
+      <ShepherdText {descriptionId} {step} />
+    {/if}
 
-  {#if Array.isArray(step.options.buttons) && step.options.buttons.length}
-    <ShepherdFooter {step} />
-  {/if}
+    {#if (Array.isArray(step.options.buttons) && step.options.buttons.length) || step.options.footerText}
+      <ShepherdFooter {step} />
+    {/if}
+  </div>
 </div>
 
 <style global>
   .shepherd-content {
-    border-radius: 5px;
     outline: none;
     padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .shepherd-body {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
   }
 </style>

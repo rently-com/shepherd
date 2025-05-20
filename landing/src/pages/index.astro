@@ -23,8 +23,8 @@ import MainPage from '@layouts/MainPage.astro';
       <div class="hero-example-code text-left">
         <Code
           code={`
-	<link rel="stylesheet" href="shepherd.js/dist/css/shepherd.css"/>
-	<script type="module" src="shepherd.js/dist/shepherd.mjs"></script>
+	<link rel="stylesheet" href="@rently-team/shepherd.js/dist/css/shepherd.css"/>
+	<script type="module" src="@rently-team/shepherd.js/dist/shepherd.mjs"></script>
   
 `}
           lang="js"
@@ -87,7 +87,7 @@ import MainPage from '@layouts/MainPage.astro';
 </MainPage>
 
 <script>
-  import Shepherd from 'shepherd.js';
+  import Shepherd from '@rently-team/shepherd.js';
 
   (function () {
     async function init() {

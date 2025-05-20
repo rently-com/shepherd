@@ -153,10 +153,12 @@
   .shepherd-element {
     background: #fff;
     border: none;
-    border-radius: 5px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
+    box-shadow:
+      0px -1px 8px -4px #10182814,
+      0px 10px 25px -3px #10182826;
     margin: 0;
-    max-width: 400px;
+    max-width: 288px;
     opacity: 0;
     outline: none;
     padding: 0;
@@ -166,6 +168,7 @@
     visibility: hidden;
     width: 100%;
     z-index: 9999;
+    padding: 16px 20px;
   }
 
   .shepherd-enabled.shepherd-element {
@@ -189,8 +192,8 @@
   .shepherd-arrow,
   .shepherd-arrow::before {
     position: absolute;
-    width: 16px;
-    height: 16px;
+    width: 8px;
+    height: 8px;
     z-index: -1;
   }
 
@@ -201,19 +204,19 @@
   }
 
   .shepherd-element[data-popper-placement^='top'] > .shepherd-arrow {
-    bottom: -8px;
+    bottom: -4px;
   }
 
   .shepherd-element[data-popper-placement^='bottom'] > .shepherd-arrow {
-    top: -8px;
+    top: -4px;
   }
 
   .shepherd-element[data-popper-placement^='left'] > .shepherd-arrow {
-    right: -8px;
+    right: -4px;
   }
 
   .shepherd-element[data-popper-placement^='right'] > .shepherd-arrow {
-    left: -8px;
+    left: -4px;
   }
 
   .shepherd-element.shepherd-centered > .shepherd-arrow {
@@ -225,7 +228,7 @@
   */
   .shepherd-element.shepherd-has-title[data-popper-placement^='bottom']
     > .shepherd-arrow::before {
-    background-color: #e6e6e6;
+    background-color: #ffffff;
   }
 
   .shepherd-target-click-disabled.shepherd-enabled.shepherd-target,

@@ -2,7 +2,7 @@
 editUrl: false
 next: false
 prev: false
-title: "shepherd.js"
+title: "@rently-team/shepherd.js"
 ---
 
 ## Modules

@@ -130,7 +130,7 @@ describe('General Utils', function () {
         step
       );
       // Shepherd pushes in flip and shift by default, so this is 3rd
-      expect(floatingUIOptions.middleware[2].options.altAxis).toBe(false);
+      expect(floatingUIOptions.middleware[floatingUIOptions.middleware.length -1].options.altAxis).toBe(false);
     });
 
     it('positioning strategy is explicitly set', function () {

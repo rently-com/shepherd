@@ -17,7 +17,7 @@
     "test:watch": "start-server-and-test start-test-server http://127.0.0.1:9002 cy:open"
   },
   "dependencies": {
-    "shepherd.js": "workspace:*"
+    "@rently-team/shepherd.js": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",

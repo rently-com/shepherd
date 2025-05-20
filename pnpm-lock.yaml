@@ -14,6 +14,9 @@ importers:
       '@babel/preset-env':
         specifier: ^7.25.8
         version: 7.25.8(@babel/core@7.26.0)
+      '@rently-team/shepherd.js':
+        specifier: workspace:*
+        version: link:shepherd.js
       '@typescript-eslint/eslint-plugin':
         specifier: ^7.18.0
         version: 7.18.0(@typescript-eslint/parser@7.18.0(eslint@8.57.0)(typescript@5.7.3))(eslint@8.57.0)(typescript@5.7.3)
@@ -56,9 +59,6 @@ importers:
       replace:
         specifier: ^1.2.2
         version: 1.2.2
-      shepherd.js:
-        specifier: workspace:*
-        version: link:shepherd.js
       svelte:
         specifier: ^4.2.19
         version: 4.2.19
@@ -77,15 +77,15 @@ importers:
       '@astrojs/tailwind':
         specifier: ^6.0.0
         version: 6.0.0(astro@5.2.4(@types/node@20.14.12)(jiti@1.21.6)(rollup@4.34.8)(terser@5.31.3)(typescript@5.7.3)(yaml@2.7.0))(tailwindcss@3.4.17)
+      '@rently-team/shepherd.js':
+        specifier: workspace:*
+        version: link:../shepherd.js
       astro:
         specifier: ^5.2.4
         version: 5.2.4(@types/node@20.14.12)(jiti@1.21.6)(rollup@4.34.8)(terser@5.31.3)(typescript@5.7.3)(yaml@2.7.0)
       sharp:
         specifier: ^0.33.4
         version: 0.33.4
-      shepherd.js:
-        specifier: workspace:*
-        version: link:../shepherd.js
       starlight-typedoc:
         specifier: ^0.18.0
         version: 0.18.0(@astrojs/starlight@0.31.1(astro@5.2.4(@types/node@20.14.12)(jiti@1.21.6)(rollup@4.34.8)(terser@5.31.3)(typescript@5.7.3)(yaml@2.7.0)))(typedoc-plugin-markdown@4.2.9(typedoc@0.26.7(typescript@5.7.3)))(typedoc@0.26.7(typescript@5.7.3))
@@ -129,12 +129,12 @@ importers:
       '@polar-sh/sdk':
         specifier: ^0.20.2
         version: 0.20.2(zod@3.24.1)
+      '@rently-team/shepherd.js':
+        specifier: workspace:*
+        version: link:../shepherd.js
       astro:
         specifier: ^5.2.4
         version: 5.2.4(@types/node@20.14.12)(jiti@1.21.6)(rollup@4.34.8)(terser@5.31.3)(typescript@5.7.3)(yaml@2.7.0)
-      shepherd.js:
-        specifier: workspace:*
-        version: link:../shepherd.js
       tailwindcss:
         specifier: ^3.4.17
         version: 3.4.17
@@ -154,15 +154,15 @@ importers:
 
   packages/react:
     dependencies:
+      '@rently-team/shepherd.js':
+        specifier: workspace:*
+        version: link:../../shepherd.js
       react:
         specifier: ^18.2.0
         version: 18.3.1
       react-dom:
         specifier: ^18.2.0
         version: 18.3.1(react@18.3.1)
-      shepherd.js:
-        specifier: workspace:*
-        version: link:../../shepherd.js
     devDependencies:
       '@testing-library/jest-dom':
         specifier: ^6.2.0
@@ -306,7 +306,7 @@ importers:
 
   test/cypress:
     dependencies:
-      shepherd.js:
+      '@rently-team/shepherd.js':
         specifier: workspace:*
         version: link:../../shepherd.js
     devDependencies:
@@ -364,6 +364,9 @@ importers:
       '@babel/preset-typescript':
         specifier: ^7.26.0
         version: 7.26.0(@babel/core@7.26.0)
+      '@rently-team/shepherd.js':
+        specifier: workspace:*
+        version: link:../../shepherd.js
       '@testing-library/jest-dom':
         specifier: ^5.17.0
         version: 5.17.0
@@ -418,9 +421,6 @@ importers:
       resize-observer-polyfill:
         specifier: ^1.5.1
         version: 1.5.1
-      shepherd.js:
-        specifier: workspace:*
-        version: link:../../shepherd.js
       start-server-and-test:
         specifier: ^2.0.10
         version: 2.0.10

@@ -43,14 +43,18 @@ export function bindAdvance(step: Step) {
           `No element was found for the selector supplied to advanceOn: ${selector}`
         );
       }
+
+      step.advanceEl = el as HTMLElement;
     }
 
     if (el) {
+      el.removeEventListener(event, handler);
       el.addEventListener(event, handler);
       step.on('destroy', () => {
         return (el as HTMLElement).removeEventListener(event, handler);
       });
     } else {
+      document.body.removeEventListener(event, handler);
       document.body.addEventListener(event, handler, true);
       step.on('destroy', () => {
         return document.body.removeEventListener(event, handler, true);

@@ -17,12 +17,13 @@ import {
 import {
   setupTooltip,
   destroyTooltip,
-  mergeTooltipConfig
+  mergeTooltipConfig,
+  positionOverlay
 } from './utils/floating-ui.ts';
 // @ts-expect-error TODO: we don't have Svelte .d.ts files until we generate the dist
 import ShepherdElement from './components/shepherd-element.svelte';
 import { type Tour } from './tour.ts';
-import type { ComputePositionConfig } from '@floating-ui/dom';
+import type { ComputePositionConfig, OffsetOptions } from '@floating-ui/dom';
 
 export type StepText =
   | string
@@ -193,6 +194,34 @@ export interface StepOptions {
   title?: StringOrStringFunction;
 
   /**
+   * The titleIcon will be added ot the header
+   * ```
+   * - HTML string
+   * - `Function` to be executed when the step is built. It must return HTML string.
+   * ```
+   */
+  titleIcon?: StringOrStringFunction;
+
+  /**
+   * The step's footer. It becomes a span in the footer's beginning.
+   * ```
+   * - HTML string
+   * - `Function` to be executed when the step is built. It must return HTML string.
+   * ```
+   */
+  footerText?: StringOrStringFunction;
+
+  /**
+   * Doesnt have any impact on the step
+   */
+  pageUrl?: string;
+
+  /**
+   * Doesnt have any impact on the step
+   */
+  static?: boolean;
+
+  /**
    * You can define `show`, `hide`, etc events inside `when`. For example:
    * ```js
    * when: {
@@ -203,6 +232,20 @@ export interface StepOptions {
    * ```
    */
   when?: StepOptionsWhen;
+
+  /**
+   * The offset will be used as offset value for the @floating-ui/dom
+   * It will adjust the position of the popover from the target
+   * ```
+   * - OffsetOptions
+   * ```
+   */
+  offset?: OffsetOptions;
+
+  /**
+   * Configuration for an overlay element positioned over the target element.
+   */
+  overlay?: StepOverlay;
 }
 
 export type PopperPlacement =
@@ -237,6 +280,31 @@ export interface StepOptionsAttachTo {
     | null
     | (() => HTMLElement | string | null | undefined);
   on?: PopperPlacement;
+  /*
+   * The amount of time waited for the element to appear in ms
+   */
+  wait?: number;
+
+  strict?: boolean;
+}
+
+export interface StepOverlay {
+  /**
+   * CSS class applied to the overlay element.
+   */
+  class: string;
+
+  /**
+   * Optional horizontal padding (in pixels) applied around the overlay.
+   * This affects the size and position of the overlay.
+   */
+  paddingX?: number;
+
+  /**
+   * Optional vertical padding (in pixels) applied around the overlay.
+   * This affects the size and position of the overlay.
+   */
+  paddingY?: number;
 }
 
 export interface StepOptionsAdvanceOn {
@@ -298,6 +366,11 @@ export interface StepOptionsWhen {
   [key: string]: (this: Step) => void;
 }
 
+export interface Overlay {
+  element: HTMLElement;
+  cleanup?: () => void;
+}
+
 /**
  * A class representing steps to be added to a tour.
  * @extends {Evented}
@@ -313,6 +386,9 @@ export class Step extends Evented {
   declare options: StepOptions;
   target?: HTMLElement | null;
   tour: Tour;
+  observer?: MutationObserver;
+  _overlay?: Overlay;
+  advanceEl?: HTMLElement | null;
 
   constructor(tour: Tour, options: StepOptions = {}) {
     super();
@@ -369,6 +445,8 @@ export class Step extends Evented {
       this.el = null;
     }
 
+    this._removeOverlay();
+
     this._updateStepTargetOnHide();
 
     this.trigger('destroy');
@@ -392,6 +470,10 @@ export class Step extends Evented {
 
     if (this.el) {
       this.el.hidden = true;
+    }
+
+    if (this._overlay) {
+      this._removeOverlay();
     }
 
     this._updateStepTargetOnHide();
@@ -438,16 +520,49 @@ export class Step extends Evented {
     return Boolean(this.el && !this.el.hidden);
   }
 
+  _waitForElement() {
+    return new Promise((resolve) => {
+      const intervalTime = 100;
+      const attachTo = this.options.attachTo;
+
+      const checkElement = () => {
+        let element;
+
+        if (isFunction(attachTo?.element)) {
+          element = attachTo.element.call(this);
+          if (element) {
+            resolve(element);
+          }
+        }
+        element = document.querySelector(attachTo?.element as string);
+        if (element) {
+          resolve(element);
+        } else {
+          setTimeout(checkElement, intervalTime);
+        }
+      };
+
+      checkElement();
+    });
+  }
+
   /**
    * Wraps `_show` and ensures `beforeShowPromise` resolves before calling show
+   * Wraps `_waitForElement` to wait for the element to appear before showing
    */
   show() {
+    const promises = [];
+
     if (isFunction(this.options.beforeShowPromise)) {
-      return Promise.resolve(this.options.beforeShowPromise()).then(() =>
-        this._show()
-      );
+      promises.push(Promise.resolve(this.options.beforeShowPromise()));
     }
-    return Promise.resolve(this._show());
+
+    if (this.options.attachTo?.wait) {
+      promises.push(this._waitForElement());
+    }
+
+    // Promise.all([]) resolves immediately if the array is empty
+    return Promise.all(promises).then(() => this._show()).catch(console.error);
   }
 
   /**
@@ -493,7 +608,7 @@ export class Step extends Evented {
 
     // @ts-expect-error TODO: get types for Svelte components
     this.shepherdElementComponent = new ShepherdElement({
-      target: this.tour.options.stepsContainer || document.body,
+      target: this.tour.options?.stepsContainer || document.body,
       props: {
         classPrefix: this.classPrefix,
         descriptionId,
@@ -586,6 +701,37 @@ export class Step extends Evented {
   }
 
   /**
+   * Creates a overlay element that appears above the target
+   * @returns HTMLElement
+   */
+  _createOverlay() {
+    this._overlay = {
+      element: document.createElement('div')
+    };
+    Object.assign(this._overlay.element.style, {
+      position: 'absoulte',
+      zIndex: '9999'
+    });
+    this._overlay.element.className = `${this.classPrefix}shepherd-overlay`;
+    document.body.appendChild(this._overlay.element);
+    return this._overlay.element;
+  }
+
+  /**
+   * Deletes the created overlay element and
+   * cleanup the autoupdate of its pos
+   * @returns void
+   */
+  _removeOverlay() {
+    if (this._overlay) {
+      this._overlay?.cleanup?.();
+      if (isHTMLElement(this._overlay.element)) {
+        this._overlay.element.remove();
+      }
+    }
+  }
+
+  /**
    * Create the element and set up the FloatingUI instance
    * @private
    */
@@ -600,6 +746,17 @@ export class Step extends Evented {
       bindAdvance(this);
     }
 
+    // create the overlay element and position itself with autoupdate
+    if (
+      this.options.overlay &&
+      this.options.attachTo?.element &&
+      this._resolvedAttachTo?.element
+    ) {
+      const overlay = this._createOverlay();
+      overlay.classList.add(this.options.overlay.class);
+      positionOverlay(this);
+    }
+
     // The tooltip implementation details are handled outside of the Step
     // object.
     setupTooltip(this);
@@ -610,8 +767,8 @@ export class Step extends Evented {
    * sets up a FloatingUI instance for the tooltip, then triggers `show`.
    * @private
    */
-  _show() {
-    this.trigger('before-show');
+  _show(trigger = true) {
+    if (trigger) this.trigger('before-show');
 
     // Force resolve to make sure the options are updated on subsequent shows.
     this._resolveAttachToOptions();
@@ -656,7 +813,39 @@ export class Step extends Evented {
       el.classList.add(`${this.classPrefix}shepherd-target`);
     });
 
-    this.trigger('show');
+    // Cancel the tour when the target is removed from the body
+    if (this.options.attachTo && target && !this.observer) {
+      this.observer = new MutationObserver(() => {
+
+        // hide element if the target is removed
+        if (!document.body.contains(target)) {
+          //Hide the elements if the target is removed
+          if (isHTMLElement(this.el)) this.el.hidden = true;
+          if (isHTMLElement(this._overlay?.element))
+            this._overlay.element.hidden = true;
+        }
+        
+        // restart the step if the element appeared again
+        const attachTo = this._resolveAttachToOptions();
+
+        if (
+          isHTMLElement(attachTo.element) &&
+          attachTo.element !== target
+        ) {
+          this._show(false);
+        }
+        if (this.options.advanceOn?.selector && isHTMLElement(document.querySelector(this.options.advanceOn.selector)) && (!this.advanceEl || document.body.contains(this.advanceEl)) ) {
+          bindAdvance(this);
+        }
+      });
+
+      this.observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    }
+
+    if (trigger) this.trigger('show');
   }
 
   /**
@@ -701,6 +890,8 @@ export class Step extends Evented {
   _updateStepTargetOnHide() {
     const target = this.target || document.body;
     const extraHighlightElements = this._resolvedExtraHighlightElements;
+    this.observer?.disconnect();
+    this.observer = undefined;
 
     const highlightClass = this.options.highlightClass;
     if (highlightClass) {
