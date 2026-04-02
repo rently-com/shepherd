@@ -1,7 +1,11 @@
 packages:
-  - "shepherd.js"
-  - "landing"
-  - "packages/*"
-  - "test/cypress"
-  - "test/unit"
-  - "docs-src"
+  - shepherd.js
+  - landing
+  - packages/*
+  - docs-src
+
+onlyBuiltDependencies:
+  - cypress
+  - esbuild
+  - sharp
+  - svelte-preprocess

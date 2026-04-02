@@ -2,7 +2,6 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
 import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
-import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default defineConfig({
@@ -15,9 +14,18 @@ export default defineConfig({
         src: './src/assets/Shepherd-Lamb.svg'
       },
       favicon: '/favicon.ico',
-      social: {
-        github: 'https://github.com/shepherd-pro/shepherd'
-      },
+      social: [
+        {
+          icon: 'github',
+          label: 'GitHub',
+          href: 'https://github.com/shipshapecode/shepherd'
+        },
+        {
+          icon: 'discord',
+          label: 'Discord',
+          href: 'https://discord.gg/EGcDW5NSud'
+        }
+      ],
       components: {
         // Override the default `Head` component.
         Head: './src/components/HeadWithPosthog.astro'
@@ -47,6 +55,10 @@ export default defineConfig({
             {
               label: 'Usage',
               link: '/guides/usage/'
+            },
+            {
+              label: 'License & Pricing',
+              link: '/guides/license/'
             }
           ]
         },
@@ -75,7 +87,6 @@ export default defineConfig({
         // },
         typeDocSidebarGroup
       ]
-    }),
-    tailwind()
+    })
   ]
 });

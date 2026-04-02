@@ -19,8 +19,10 @@ import {
   destroyTooltip,
   mergeTooltipConfig
 } from './utils/floating-ui.ts';
-// @ts-expect-error TODO: we don't have Svelte .d.ts files until we generate the dist
-import ShepherdElement from './components/shepherd-element.svelte';
+import {
+  createShepherdElement,
+  type ShepherdElementResult
+} from './components/shepherd-element.ts';
 import { type Tour } from './tour.ts';
 import type { ComputePositionConfig } from '@floating-ui/dom';
 
@@ -259,6 +261,32 @@ export interface StepOptionsButton {
   action?: (this: Tour) => void;
 
   /**
+   * Additional HTML attributes to apply to the button element.
+   *
+   * This is useful for adding data attributes for testing or analytics,
+   * or other custom attributes that don't have dedicated properties.
+   *
+   * Note: These attributes are applied before Shepherd's core attributes,
+   * so they cannot override critical properties like `type`, `onclick`,
+   * `class`, `disabled`, `aria-label`, or `tabindex`. Use the dedicated
+   * properties (`classes`, `disabled`, `label`, `action`) to control those.
+   *
+   * @example
+   * ```js
+   * {
+   *   text: 'Next',
+   *   action: tour.next,
+   *   attrs: {
+   *     'data-test': 'next-button',
+   *     'data-analytics-id': 'tour-next',
+   *     'title': 'Proceed to the next step'
+   *   }
+   * }
+   * ```
+   */
+  attrs?: Record<string, string | number | boolean>;
+
+  /**
    * Extra classes to apply to the `<a>`
    */
   classes?: string;
@@ -290,7 +318,37 @@ export interface StepOptionsButtonEvent {
 }
 
 export interface StepOptionsCancelIcon {
+  /**
+   * Additional HTML attributes to apply to the cancel icon button element.
+   *
+   * This is useful for adding data attributes for testing or analytics,
+   * or other custom attributes that don't have dedicated properties.
+   *
+   * Note: These attributes are applied before Shepherd's core attributes,
+   * so they cannot override critical properties like `type`, `onclick`,
+   * `class`, or `aria-label`. Use the dedicated `label` property to
+   * control the aria-label.
+   *
+   * @example
+   * ```js
+   * cancelIcon: {
+   *   enabled: true,
+   *   label: 'Close Tour',
+   *   attrs: {
+   *     'data-test': 'close-tour-button',
+   *     'data-analytics-id': 'tour-close'
+   *   }
+   * }
+   * ```
+   */
+  attrs?: Record<string, string | number | boolean>;
+  /**
+   * Should a cancel "✕" be shown in the header of the step?
+   */
   enabled?: boolean;
+  /**
+   * The label to add for `aria-label`
+   */
   label?: string;
 }
 
@@ -305,12 +363,13 @@ export interface StepOptionsWhen {
 export class Step extends Evented {
   _resolvedAttachTo: StepOptionsAttachTo | null;
   _resolvedExtraHighlightElements?: HTMLElement[];
+  _originalTabIndexes: Map<Element, string>;
   classPrefix?: string;
-  // eslint-disable-next-line @typescript-eslint/ban-types
   declare cleanup: Function | null;
   el?: HTMLElement | null;
   declare id: string;
   declare options: StepOptions;
+  shepherdElementComponent?: ShepherdElementResult;
   target?: HTMLElement | null;
   tour: Tour;
 
@@ -331,6 +390,13 @@ export class Step extends Evented {
      * @private
      */
     this._resolvedAttachTo = null;
+
+    /**
+     * Map to store original tabIndex values of elements that are modified during the tour.
+     * @type {Map<Element, string | null>}
+     * @private
+     */
+    this._originalTabIndexes = new Map();
 
     autoBind(this);
 
@@ -362,7 +428,22 @@ export class Step extends Evented {
    * Triggers `destroy` event
    */
   destroy() {
+    this._teardownElements();
+    this.trigger('destroy');
+  }
+
+  /**
+   * Internal cleanup that tears down the tooltip, component, and DOM element
+   * without emitting the public "destroy" event.
+   * @private
+   */
+  _teardownElements() {
     destroyTooltip(this);
+
+    if (this.shepherdElementComponent) {
+      this.shepherdElementComponent.cleanup();
+      this.shepherdElementComponent = undefined;
+    }
 
     if (isHTMLElement(this.el)) {
       this.el.remove();
@@ -370,8 +451,7 @@ export class Step extends Evented {
     }
 
     this._updateStepTargetOnHide();
-
-    this.trigger('destroy');
+    this._originalTabIndexes.clear();
   }
 
   /**
@@ -458,10 +538,12 @@ export class Step extends Evented {
   updateStepOptions(options: StepOptions) {
     Object.assign(this.options, options);
 
-    // @ts-expect-error TODO: get types for Svelte components
     if (this.shepherdElementComponent) {
-      // @ts-expect-error TODO: get types for Svelte components
-      this.shepherdElementComponent.$set({ step: this });
+      // Recreate the element with updated options
+      if (this.el) {
+        this._teardownElements();
+        this._setupElements();
+      }
     }
   }
 
@@ -482,6 +564,37 @@ export class Step extends Evented {
   }
 
   /**
+   * Stores the original tabIndex value of an element before modifying it.
+   * Only stores the value if the element has a tabindex attribute.
+   * @param {Element} element The element whose tabIndex will be stored
+   * @private
+   */
+  _storeOriginalTabIndex(element: Element): void {
+    const originalValue = element.getAttribute('tabindex');
+    if (originalValue !== null) {
+      this._originalTabIndexes.set(element, originalValue);
+    }
+  }
+
+  /**
+   * Restores the original tabIndex values for all elements that were modified during the tour.
+   * If an element is in the map, restores its original value.
+   * If an element is not in the map, removes the tabindex attribute (it didn't have one originally).
+   * Note: Does not clear the map to allow for multiple show/hide cycles.
+   * @private
+   */
+  _restoreOriginalTabIndexes(): void {
+    const target = this.target;
+    if (target) {
+      if (this._originalTabIndexes.has(target)) {
+        target.setAttribute('tabindex', this._originalTabIndexes.get(target)!);
+      } else {
+        target.removeAttribute('tabindex');
+      }
+    }
+  }
+
+  /**
    * Creates Shepherd element for step based on options
    *
    * @return {HTMLElement} The DOM element for the step tooltip
@@ -491,21 +604,17 @@ export class Step extends Evented {
     const descriptionId = `${this.id}-description`;
     const labelId = `${this.id}-label`;
 
-    // @ts-expect-error TODO: get types for Svelte components
-    this.shepherdElementComponent = new ShepherdElement({
-      target: this.tour.options.stepsContainer || document.body,
-      props: {
-        classPrefix: this.classPrefix,
-        descriptionId,
-        labelId,
-        step: this,
-        // @ts-expect-error TODO: investigate where styles comes from
-        styles: this.styles
-      }
+    this.shepherdElementComponent = createShepherdElement({
+      classPrefix: this.classPrefix,
+      descriptionId,
+      labelId,
+      step: this
     });
 
-    // @ts-expect-error TODO: get types for Svelte components
-    return this.shepherdElementComponent.getElement();
+    const target = this.tour.options.stepsContainer || document.body;
+    target.append(this.shepherdElementComponent.element);
+
+    return this.shepherdElementComponent.element;
   }
 
   /**
@@ -642,8 +751,7 @@ export class Step extends Evented {
       this.el.hidden = false;
     }
 
-    // @ts-expect-error TODO: get types for Svelte components
-    const content = this.shepherdElementComponent.getElement();
+    const content = this.shepherdElementComponent!.element;
     const target = this.target || document.body;
     const extraHighlightElements = this._resolvedExtraHighlightElements;
 
@@ -722,5 +830,7 @@ export class Step extends Evented {
         `${this.classPrefix}shepherd-target`
       );
     });
+
+    this._restoreOriginalTabIndexes();
   }
 }

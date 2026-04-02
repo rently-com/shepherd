@@ -1,1 +1,4 @@
-/dist/
+/dev/
+dist/
+dummy/
+tmp/
